@@ -1,0 +1,4 @@
+com:
+  thanethomson:
+    gcms:
+      thread-pool-size: 100

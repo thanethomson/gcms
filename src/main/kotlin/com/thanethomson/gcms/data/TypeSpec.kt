@@ -1,6 +1,7 @@
 package com.thanethomson.gcms.data
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 
@@ -19,6 +20,13 @@ data class TypeSpec(
      */
     constructor(json: JsonNode): this(
         parseTypeSpecFields(json)
+    )
+
+    /**
+     * Constructor to build the type spec from a JSON string.
+     */
+    constructor(json: String): this(
+        parseJsonString(json)
     )
 
     fun toJson(): JsonNode {

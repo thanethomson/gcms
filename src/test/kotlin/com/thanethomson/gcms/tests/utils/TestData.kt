@@ -1,4 +1,4 @@
-package com.thanethomson.gcms.tests
+package com.thanethomson.gcms.tests.utils
 
 import com.thanethomson.gcms.data.FieldSpec
 import com.thanethomson.gcms.data.TypeSpec
@@ -19,13 +19,13 @@ class TestData {
         init {
             // initialise our test data
             postTypeFields["title"] = FieldSpec(FieldType.STRING, maxSize = 300)
-            postTypeFields["posted"] = FieldSpec(FieldType.DATETIME, default = "NOW")
+            postTypeFields["posted"] = FieldSpec(FieldType.DATETIME)
             postTypeFields["body"] = FieldSpec(FieldType.TEXT)
             postType = TypeSpec(postTypeFields)
 
             postTypeFieldsFk["title"] = FieldSpec(FieldType.STRING, maxSize = 300)
             postTypeFieldsFk["author"] = FieldSpec(FieldType.FOREIGN_KEY, references = "Author")
-            postTypeFieldsFk["posted"] = FieldSpec(FieldType.DATETIME, default = "NOW")
+            postTypeFieldsFk["posted"] = FieldSpec(FieldType.DATETIME)
             postTypeFieldsFk["body"] = FieldSpec(FieldType.TEXT)
             postTypeFk = TypeSpec(postTypeFieldsFk)
 

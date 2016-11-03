@@ -1,7 +1,8 @@
-package com.thanethomson.gcms.tests
+package com.thanethomson.gcms.tests.utils
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.thanethomson.gcms.controllers.CONTENT_TYPES
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpStatus
 
@@ -11,15 +12,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 
-
-object CONTENT_TYPES {
-
-    @JvmStatic val APPLICATION_JSON = LinkedMultiValueMap<String, String>()
-    init {
-        APPLICATION_JSON.add("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    }
-
-}
 
 fun parseJson(s: String): JsonNode = ObjectMapper().readTree(s)
 

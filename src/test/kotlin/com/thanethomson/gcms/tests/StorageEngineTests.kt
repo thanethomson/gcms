@@ -3,6 +3,7 @@ package com.thanethomson.gcms.tests
 import com.thanethomson.gcms.Application
 import com.thanethomson.gcms.errors.FieldDoesNotExistError
 import com.thanethomson.gcms.storage.StorageEngine
+import com.thanethomson.gcms.tests.utils.TestData
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
