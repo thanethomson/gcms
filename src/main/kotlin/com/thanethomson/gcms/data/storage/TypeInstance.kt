@@ -11,6 +11,7 @@ import com.thanethomson.gcms.errors.JsonParseError
 import com.thanethomson.gcms.errors.TypeSpecError
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.function.Function
 
 data class TypeInstance(
 
@@ -32,6 +33,20 @@ data class TypeInstance(
 ) {
 
     companion object {
+        @JvmStatic val JSON_FIELD_VALUE_PROCESSORS = HashMap<FieldType, Function<JsonNode, Any?>>()
+
+        init {
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.STRING, Function(JsonNode::asText))
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.INT, Function(JsonNode::asInt))
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.BIGINT, Function(JsonNode::asLong))
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.TEXT, Function(JsonNode::asText))
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.FLOAT, Function(JsonNode::asDouble))
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.BOOLEAN, Function(JsonNode::asBoolean))
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.DATETIME, Function { json -> parseJsonDateTime(json.asText()) })
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.DATE, Function { json -> parseJsonDate(json.asText()) })
+            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.FOREIGN_KEY, Function(JsonNode::asText))
+        }
+
         @JvmStatic fun fromJson(types: Map<String, TypeSpec>, type: String, json: JsonNode): TypeInstance {
             if (!json.isObject || json.size() == 0) {
                 throw JsonParseError("Instance must be a non-empty JSON object")
@@ -51,17 +66,7 @@ data class TypeInstance(
             for ((fieldName, fieldSpec) in typeSpec.fields) {
                 var fieldValue: Any? = null
                 if (json.hasNonNull(fieldName)) {
-                    when (fieldSpec.type) {
-                        FieldType.STRING -> fieldValue = json.get(fieldName).asText()
-                        FieldType.INT -> fieldValue = json.get(fieldName).asInt()
-                        FieldType.BIGINT -> fieldValue = json.get(fieldName).asLong()
-                        FieldType.TEXT -> fieldValue = json.get(fieldName).asText()
-                        FieldType.FLOAT -> fieldValue = json.get(fieldName).asDouble()
-                        FieldType.BOOLEAN -> fieldValue = json.get(fieldName).asBoolean()
-                        FieldType.DATETIME -> fieldValue = parseJsonDateTime(json.get(fieldName).asText())
-                        FieldType.DATE -> fieldValue = parseJsonDate(json.get(fieldName).asText())
-                        FieldType.FOREIGN_KEY -> fieldValue = json.get(fieldName).asText()
-                    }
+                    fieldValue = JSON_FIELD_VALUE_PROCESSORS[fieldSpec.type].apply { json.get(fieldName) }
                 }
                 fieldValues.put(fieldName, fieldValue)
             }

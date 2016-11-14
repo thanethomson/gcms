@@ -45,59 +45,66 @@ data class FieldSpec(
 
     companion object {
         @JvmStatic fun fromJson(json: JsonNode): FieldSpec {
-            if (!json.isObject || json.size() == 0) {
-                throw JsonParseError("Field spec JSON must be a non-empty object")
-            }
-            val type: FieldType
-            var default: Any? = null
-            var minSize: Int? = null
-            var maxSize: Int? = null
-            var references: String? = null
-            var indexed: Boolean = false
+            if (json.isTextual) {
+                // assume it's a plain type definition
+                return FieldSpec(FieldType.fromId(json.asText()))
+            } else if (json.isObject) {
+                if (json.size() == 0) {
+                    throw JsonParseError("Field spec JSON must be a non-empty object")
+                }
+                val type: FieldType
+                var default: Any? = null
+                var minSize: Int? = null
+                var maxSize: Int? = null
+                var references: String? = null
+                var indexed: Boolean = false
 
-            if (json.hasNonNull("type") && json.get("type").isTextual) {
-                type = FieldType.fromId(json.get("type").asText())
+                if (json.hasNonNull("type") && json.get("type").isTextual) {
+                    type = FieldType.fromId(json.get("type").asText())
+                } else {
+                    throw JsonParseError("Missing or incorrect type of compulsory field spec field: \"type\"")
+                }
+                if (json.hasNonNull("default")) {
+                    when (type) {
+                        FieldType.STRING -> default = json.get("default").asText()
+                        FieldType.INT -> default = json.get("default").asInt()
+                        FieldType.BIGINT -> default = json.get("default").asLong()
+                        FieldType.TEXT -> default = json.get("default").asText()
+                        FieldType.FLOAT -> default = json.get("default").asDouble()
+                        FieldType.BOOLEAN -> default = json.get("default").asBoolean()
+                        FieldType.DATETIME -> default = parseJsonDateTime(json.get("default").asText())
+                        FieldType.DATE -> default = parseJsonDate(json.get("default").asText())
+                        FieldType.FOREIGN_KEY -> default = json.get("default").asText()
+                    }
+                }
+                if (json.hasNonNull("minSize")) {
+                    if (!json.get("minSize").isInt) {
+                        throw JsonParseError("Field \"minSize\" must be an integer")
+                    }
+                    minSize = json.get("minSize").asInt()
+                }
+                if (json.hasNonNull("maxSize")) {
+                    if (!json.get("maxSize").isInt) {
+                        throw JsonParseError("Field \"maxSize\" must be an integer")
+                    }
+                    maxSize = json.get("maxSize").asInt()
+                }
+                if (json.hasNonNull("references")) {
+                    if (!json.get("references").isTextual) {
+                        throw JsonParseError("Field \"references\" must be textual")
+                    }
+                    references = json.get("references").asText()
+                }
+                if (json.hasNonNull("indexed")) {
+                    if (!json.get("indexed").isBoolean) {
+                        throw JsonParseError("Field \"indexed\" must be a boolean value")
+                    }
+                    indexed = json.get("indexed").asBoolean()
+                }
+                return FieldSpec(type, default, minSize, maxSize, references, indexed)
             } else {
-                throw JsonParseError("Missing or incorrect type of compulsory field spec field: \"type\"")
+                throw JsonParseError("Field spec must either be a string or an object")
             }
-            if (json.hasNonNull("default")) {
-                when (type) {
-                    FieldType.STRING -> default = json.get("default").asText()
-                    FieldType.INT -> default = json.get("default").asInt()
-                    FieldType.BIGINT -> default = json.get("default").asLong()
-                    FieldType.TEXT -> default = json.get("default").asText()
-                    FieldType.FLOAT -> default = json.get("default").asDouble()
-                    FieldType.BOOLEAN -> default = json.get("default").asBoolean()
-                    FieldType.DATETIME -> default = parseJsonDateTime(json.get("default").asText())
-                    FieldType.DATE -> default = parseJsonDate(json.get("default").asText())
-                    FieldType.FOREIGN_KEY -> default = json.get("default").asText()
-                }
-            }
-            if (json.hasNonNull("minSize")) {
-                if (!json.get("minSize").isInt) {
-                    throw JsonParseError("Field \"minSize\" must be an integer")
-                }
-                minSize = json.get("minSize").asInt()
-            }
-            if (json.hasNonNull("maxSize")) {
-                if (!json.get("maxSize").isInt) {
-                    throw JsonParseError("Field \"maxSize\" must be an integer")
-                }
-                maxSize = json.get("maxSize").asInt()
-            }
-            if (json.hasNonNull("references")) {
-                if (!json.get("references").isTextual) {
-                    throw JsonParseError("Field \"references\" must be textual")
-                }
-                references = json.get("references").asText()
-            }
-            if (json.hasNonNull("indexed")) {
-                if (!json.get("indexed").isBoolean) {
-                    throw JsonParseError("Field \"indexed\" must be a boolean value")
-                }
-                indexed = json.get("indexed").asBoolean()
-            }
-            return FieldSpec(type, default, minSize, maxSize, references, indexed)
         }
 
         @JvmStatic fun fromJson(json: String): FieldSpec

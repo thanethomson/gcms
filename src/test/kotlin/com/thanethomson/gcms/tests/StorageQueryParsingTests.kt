@@ -17,7 +17,7 @@ import org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner::class)
 @ActiveProfiles("test")
 @SpringBootTest(classes = arrayOf(Application::class))
-class StorageQueryTests {
+class StorageQueryParsingTests {
 
     companion object {
         @JvmStatic val BASIC_VALID_QUERY1 = "{\"id\": \"something\"}"

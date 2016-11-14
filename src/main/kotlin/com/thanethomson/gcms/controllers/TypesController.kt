@@ -5,6 +5,8 @@ import com.thanethomson.gcms.data.messaging.SuccessMessage
 import com.thanethomson.gcms.data.storage.TypeSpec
 import com.thanethomson.gcms.data.makeJsonStringFromTypeList
 import com.thanethomson.gcms.storage.StorageEngine
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -20,6 +22,10 @@ class TypesController @Autowired constructor(
     val storageEngine: StorageEngine
 ) {
 
+    companion object {
+        @JvmStatic val logger: Logger = LoggerFactory.getLogger(TypesController::class.java)
+    }
+
     @RequestMapping(method = arrayOf(RequestMethod.GET))
     fun listTypes(): DeferredResult<ResponseEntity<String>>
         = executeControllerAsync(
@@ -30,7 +36,8 @@ class TypesController @Autowired constructor(
                     makeJsonStringFromTypeList(result),
                     HttpStatus.OK
                 )
-            }
+            },
+            logger
         )
 
     @RequestMapping(path = arrayOf("/{name}"), method = arrayOf(RequestMethod.PUT))
@@ -43,7 +50,8 @@ class TypesController @Autowired constructor(
                     SuccessMessage("OK").toJsonString(),
                     HttpStatus.OK
                 )
-            }
+            },
+            logger
         )
 
     @RequestMapping(path = arrayOf("/{name}"), method = arrayOf(RequestMethod.DELETE))
@@ -56,7 +64,8 @@ class TypesController @Autowired constructor(
                     SuccessMessage("OK").toJsonString(),
                     HttpStatus.OK
                 )
-            }
+            },
+            logger
         )
 
 }

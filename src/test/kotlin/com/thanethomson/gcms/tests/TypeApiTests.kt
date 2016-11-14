@@ -18,6 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
 import org.junit.Assert.*;
 import org.junit.Before
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.test.context.ActiveProfiles
 
 
@@ -25,6 +27,10 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("test")
 @SpringBootTest(classes = arrayOf(Application::class), webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TypeApiTests {
+
+    companion object {
+        @JvmStatic val logger: Logger = LoggerFactory.getLogger(TypeApiTests::class.java)
+    }
 
     @Autowired
     lateinit var restTemplate: TestRestTemplate
@@ -71,14 +77,14 @@ class TypeApiTests {
     @Test
     fun testCreateThenDeleteSimpleType() {
         putSimpleType()
-        deleteForJson(restTemplate, "/type/Post")
+        deleteForJson(restTemplate, "/type/Post", logger=logger)
         typeShouldNotExist("Post")
     }
 
     fun getTypesList(): JsonNode = getForJson(restTemplate, "/type")
 
     fun putSimpleType() {
-        putForJson(restTemplate, "/type/Post", TestData.postType.toJsonString())
+        putForJson(restTemplate, "/type/Post", TestData.postType.toJsonString(), logger=logger)
         val types = storageEngine.getTypes()
         assertEquals(1, types.size)
         assertTrue(types.containsKey("Post"))
