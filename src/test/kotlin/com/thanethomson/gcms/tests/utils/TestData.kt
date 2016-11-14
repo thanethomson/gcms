@@ -1,7 +1,7 @@
 package com.thanethomson.gcms.tests.utils
 
-import com.thanethomson.gcms.data.FieldSpec
-import com.thanethomson.gcms.data.TypeSpec
+import com.thanethomson.gcms.data.storage.FieldSpec
+import com.thanethomson.gcms.data.storage.TypeSpec
 import com.thanethomson.gcms.enums.FieldType
 import java.util.*
 

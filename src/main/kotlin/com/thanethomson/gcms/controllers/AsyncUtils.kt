@@ -3,7 +3,7 @@ package com.thanethomson.gcms.controllers
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListeningExecutorService
-import com.thanethomson.gcms.data.ErrorMessage
+import com.thanethomson.gcms.data.messaging.ErrorMessage
 import com.thanethomson.gcms.errors.FieldDoesNotExistError
 import com.thanethomson.gcms.errors.JsonParseError
 import com.thanethomson.gcms.errors.NotFoundError

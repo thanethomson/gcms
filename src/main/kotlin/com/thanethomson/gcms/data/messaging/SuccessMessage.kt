@@ -1,13 +1,13 @@
-package com.thanethomson.gcms.data
+package com.thanethomson.gcms.data.messaging
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 
-data class ErrorMessage(val msg: String) {
+data class SuccessMessage(val message: String) {
 
     fun toJson(): JsonNode {
         val json = JsonNodeFactory.instance.objectNode()
-        json.put("error", msg)
+        json.put("message", message)
         return json
     }
 

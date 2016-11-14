@@ -2,7 +2,7 @@ package com.thanethomson.gcms.tests
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.thanethomson.gcms.Application
-import com.thanethomson.gcms.data.TypeSpec
+import com.thanethomson.gcms.data.storage.TypeSpec
 import com.thanethomson.gcms.errors.NotFoundError
 import com.thanethomson.gcms.storage.StorageEngine
 import com.thanethomson.gcms.tests.utils.TestData
@@ -64,7 +64,7 @@ class TypeApiTests {
         assertEquals(1, json.size())
         assertTrue(json.hasNonNull("Post"))
         // convert this JSON object to a TypeSpec
-        val createdTypeSpec = TypeSpec(json.get("Post"))
+        val createdTypeSpec = TypeSpec.fromJson(json.get("Post"))
         assertEquals(TestData.postType, createdTypeSpec)
     }
 

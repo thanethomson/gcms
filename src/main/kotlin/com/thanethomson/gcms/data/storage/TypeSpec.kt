@@ -1,9 +1,11 @@
-package com.thanethomson.gcms.data
+package com.thanethomson.gcms.data.storage
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.thanethomson.gcms.data.parseJsonString
+import com.thanethomson.gcms.errors.JsonParseError
+import java.util.*
 
 /**
  * Allows us to describe a data type.
@@ -15,19 +17,21 @@ data class TypeSpec(
     val fields: Map<String, FieldSpec>
 ) {
 
-    /**
-     * Constructor to build the type spec from a JSON object.
-     */
-    constructor(json: JsonNode): this(
-        parseTypeSpecFields(json)
-    )
+    companion object {
+        @JvmStatic fun fromJson(json: JsonNode): TypeSpec {
+            if (!json.isObject || json.size() == 0) {
+                throw JsonParseError("Type spec must be a non-empty JSON object")
+            }
+            val fields = HashMap<String, FieldSpec>()
+            for ((fieldName, node) in json.fields()) {
+                fields.put(fieldName, FieldSpec.fromJson(node))
+            }
+            return TypeSpec(fields)
+        }
 
-    /**
-     * Constructor to build the type spec from a JSON string.
-     */
-    constructor(json: String): this(
-        parseJsonString(json)
-    )
+        @JvmStatic fun fromJson(json: String): TypeSpec
+            = fromJson(parseJsonString(json))
+    }
 
     fun toJson(): JsonNode {
         val json = JsonNodeFactory.instance.objectNode()

@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus
 import org.junit.Assert.*;
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.util.LinkedMultiValueMap
 
 
 fun parseJson(s: String): JsonNode = ObjectMapper().readTree(s)

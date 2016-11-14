@@ -1,8 +1,8 @@
 package com.thanethomson.gcms.controllers
 
 import com.google.common.util.concurrent.ListeningExecutorService
-import com.thanethomson.gcms.data.SuccessMessage
-import com.thanethomson.gcms.data.TypeSpec
+import com.thanethomson.gcms.data.messaging.SuccessMessage
+import com.thanethomson.gcms.data.storage.TypeSpec
 import com.thanethomson.gcms.data.makeJsonStringFromTypeList
 import com.thanethomson.gcms.storage.StorageEngine
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +37,7 @@ class TypesController @Autowired constructor(
     fun upsertType(@PathVariable name: String, @RequestBody body: String)
         = executeControllerAsync(
             executor,
-            Callable { storageEngine.upsertType(name, TypeSpec(body)) },
+            Callable { storageEngine.upsertType(name, TypeSpec.fromJson(body)) },
             Function { result ->
                 makeSimpleResponseEntity(
                     SuccessMessage("OK").toJsonString(),

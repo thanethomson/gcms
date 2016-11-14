@@ -1,6 +1,8 @@
 package com.thanethomson.gcms.storage
 
-import com.thanethomson.gcms.data.TypeSpec
+import com.thanethomson.gcms.data.storage.StorageQuery
+import com.thanethomson.gcms.data.storage.TypeInstance
+import com.thanethomson.gcms.data.storage.TypeSpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Connection
@@ -64,6 +66,30 @@ class PostgresStorageEngine constructor(
             logger.info("Shutting down PostgreSQL connection")
             conn.close()
         }
+    }
+
+    override fun createInstance(type: String, fieldValues: Map<String, Any?>): TypeInstance {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun updateInstance(type: String, id: String, fieldValues: Map<String, Any?>): TypeInstance {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getInstance(type: String, id: String, relatedDepth: Int): TypeInstance {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getAllInstances(type: String, orderBy: String?, orderAsc: Boolean, limit: Int?, relatedDepth: Int?): List<TypeInstance> {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun findInstances(type: String, query: StorageQuery, orderBy: String?, orderAsc: Boolean, limit: Int?, relatedDepth: Int?): List<TypeInstance> {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun deleteInstance(type: String, id: String) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }
