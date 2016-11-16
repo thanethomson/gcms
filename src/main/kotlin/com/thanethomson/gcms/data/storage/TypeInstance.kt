@@ -3,15 +3,12 @@ package com.thanethomson.gcms.data.storage
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat
 import com.thanethomson.gcms.data.*
 import com.thanethomson.gcms.enums.FieldType
 import com.thanethomson.gcms.errors.JsonBuildError
 import com.thanethomson.gcms.errors.JsonParseError
 import com.thanethomson.gcms.errors.TypeSpecError
-import java.text.SimpleDateFormat
 import java.util.*
-import java.util.function.Function
 
 data class TypeInstance(
 
@@ -33,20 +30,6 @@ data class TypeInstance(
 ) {
 
     companion object {
-        @JvmStatic val JSON_FIELD_VALUE_PROCESSORS = HashMap<FieldType, Function<JsonNode, Any?>>()
-
-        init {
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.STRING, Function(JsonNode::asText))
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.INT, Function(JsonNode::asInt))
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.BIGINT, Function(JsonNode::asLong))
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.TEXT, Function(JsonNode::asText))
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.FLOAT, Function(JsonNode::asDouble))
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.BOOLEAN, Function(JsonNode::asBoolean))
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.DATETIME, Function { json -> parseJsonDateTime(json.asText()) })
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.DATE, Function { json -> parseJsonDate(json.asText()) })
-            JSON_FIELD_VALUE_PROCESSORS.put(FieldType.FOREIGN_KEY, Function(JsonNode::asText))
-        }
-
         @JvmStatic fun fromJson(types: Map<String, TypeSpec>, type: String, json: JsonNode): TypeInstance {
             if (!json.isObject || json.size() == 0) {
                 throw JsonParseError("Instance must be a non-empty JSON object")
@@ -66,7 +49,13 @@ data class TypeInstance(
             for ((fieldName, fieldSpec) in typeSpec.fields) {
                 var fieldValue: Any? = null
                 if (json.hasNonNull(fieldName)) {
-                    fieldValue = JSON_FIELD_VALUE_PROCESSORS[fieldSpec.type].apply { json.get(fieldName) }
+                    // if it's a related object and needs parsing
+                    if (fieldSpec.type == FieldType.FOREIGN_KEY && json.get(fieldName).isObject && fieldSpec.references != null) {
+                        // parse the sub-object
+                        fieldValue = fromJson(types, fieldSpec.references, json.get(fieldName))
+                    } else {
+                        fieldValue = fieldSpec.type.parseJsonValue(json.get(fieldName))
+                    }
                 }
                 fieldValues.put(fieldName, fieldValue)
             }
@@ -99,26 +88,12 @@ data class TypeInstance(
                 if (fieldValue == null) {
                     json.putNull(fieldName)
                 } else {
-                    when (typeSpec.fields[fieldName]?.type) {
-                        FieldType.STRING -> json.put(fieldName, fieldValue as String)
-                        FieldType.INT -> json.put(fieldName, fieldValue as Int)
-                        FieldType.BIGINT -> json.put(fieldName, fieldValue as Long)
-                        FieldType.TEXT -> json.put(fieldName, fieldValue as String)
-                        FieldType.FLOAT -> json.put(fieldName, fieldValue as Double)
-                        FieldType.BOOLEAN -> json.put(fieldName, fieldValue as Boolean)
-                        FieldType.DATETIME -> json.put(fieldName, ISO8601DateFormat().format(fieldValue as Date))
-                        FieldType.DATE -> json.put(fieldName, SimpleDateFormat("yyyy-MM-dd").format(fieldValue as Date))
-                        FieldType.FOREIGN_KEY -> {
-                            // if it's just a string, assume it's a raw ID
-                            if (fieldValue is String) {
-                                json.put(fieldName, fieldValue)
-                            } else if (fieldValue is TypeInstance) {
-                                // if it's an instance of another object, serialise it too
-                                json.putObject(fieldName).setAll(fieldValue.toJson(types) as ObjectNode)
-                            } else {
-                                throw JsonBuildError("Unrecognisable foreign key value for field $fieldName")
-                            }
-                        }
+                    // if we're serializing a complex object with sub-objects
+                    if (typeSpec.fields[fieldName]?.type == FieldType.FOREIGN_KEY && fieldValue is TypeInstance) {
+                        json.putObject(fieldName).setAll(fieldValue.toJson(types) as ObjectNode)
+                    } else {
+                        typeSpec.fields[fieldName]?.type?.serializeJsonValue(json, fieldName, fieldValue) ?:
+                            throw JsonBuildError("Missing field information for field \"$fieldName\"")
                     }
                 }
             }

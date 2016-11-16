@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.thanethomson.gcms.data.parseJsonString
 import com.thanethomson.gcms.errors.JsonParseError
+import com.thanethomson.gcms.errors.TypeSpecError
+import com.thanethomson.gcms.utils.StringValidation
 import java.util.*
 
 /**
@@ -31,6 +33,14 @@ data class TypeSpec(
 
         @JvmStatic fun fromJson(json: String): TypeSpec
             = fromJson(parseJsonString(json))
+    }
+
+    init {
+        for ((fieldName, fieldSpec) in fields) {
+            if (!StringValidation.isValidSqlId(fieldName)) {
+                throw TypeSpecError("Illegal characters in field name: $fieldName")
+            }
+        }
     }
 
     fun toJson(): JsonNode {

@@ -6,11 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat
-import com.thanethomson.gcms.data.storage.TypeInstance
 import com.thanethomson.gcms.data.storage.TypeSpec
-import com.thanethomson.gcms.enums.FieldType
 import com.thanethomson.gcms.errors.JsonParseError
-import com.thanethomson.gcms.errors.TypeSpecError
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,7 +38,11 @@ fun parseJsonString(json: String): JsonNode {
  */
 fun parseJsonDateTime(s: String): Date = ISO8601DateFormat().parse(s)
 
+fun serializeJsonDateTime(d: Date): String = ISO8601DateFormat().format(d)
+
 /**
  * Only parse simple dates in yyyy-MM-dd format.
  */
 fun parseJsonDate(s: String): Date = SimpleDateFormat("yyyy-MM-dd").parse(s)
+
+fun serializeJsonDate(d: Date): String = SimpleDateFormat("yyyy-MM-dd").format(d)

@@ -32,7 +32,7 @@ data class FieldSpec(
     val maxSize: Int? = null,
 
     /**
-     * If this is a foreign key field, which field does it reference?
+     * If this is a foreign key field, which type does it reference?
      */
     val references: String? = null,
 

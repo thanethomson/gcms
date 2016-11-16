@@ -24,9 +24,13 @@ repositories {
 }
 
 dependencies {
+    compile files("libs/jbcrypt-0.4.jar")
     compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("com.google.guava:guava:20.0")
+    compile("commons-io:commons-io:2.5")
+    compile("org.postgresql:postgresql:9.4.1212")
+    compile("org.xerial:sqlite-jdbc:3.15.1")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 

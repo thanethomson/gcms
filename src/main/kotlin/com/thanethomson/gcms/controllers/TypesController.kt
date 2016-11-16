@@ -41,7 +41,7 @@ class TypesController @Autowired constructor(
         )
 
     @RequestMapping(path = arrayOf("/{name}"), method = arrayOf(RequestMethod.PUT))
-    fun upsertType(@PathVariable name: String, @RequestBody body: String)
+    fun upsertType(@PathVariable name: String, @RequestBody body: String): DeferredResult<ResponseEntity<String>>
         = executeControllerAsync(
             executor,
             Callable { storageEngine.upsertType(name, TypeSpec.fromJson(body)) },
@@ -55,7 +55,7 @@ class TypesController @Autowired constructor(
         )
 
     @RequestMapping(path = arrayOf("/{name}"), method = arrayOf(RequestMethod.DELETE))
-    fun deleteType(@PathVariable name: String)
+    fun deleteType(@PathVariable name: String): DeferredResult<ResponseEntity<String>>
         = executeControllerAsync(
             executor,
             Callable { storageEngine.deleteType(name) },

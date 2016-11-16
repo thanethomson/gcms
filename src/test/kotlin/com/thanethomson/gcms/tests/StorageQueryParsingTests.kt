@@ -5,13 +5,14 @@ import com.thanethomson.gcms.data.storage.StorageQuery
 import com.thanethomson.gcms.data.storage.StorageQueryClause
 import com.thanethomson.gcms.enums.ClauseOp
 import com.thanethomson.gcms.enums.QueryOp
+import com.thanethomson.gcms.errors.QueryParseError
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
-import org.junit.Assert.*;
+import org.junit.Assert.*
 
 
 @RunWith(SpringJUnit4ClassRunner::class)
@@ -30,6 +31,8 @@ class StorageQueryParsingTests {
         @JvmStatic val BASIC_VALID_OP_QUERY1 = "{\"\$or\": { \"id\": \"something\", \"param1\": 12345 } }"
         @JvmStatic val BASIC_VALID_OP_QUERY2 = "{\"\$not\": {\"id\": \"something\" } }"
         @JvmStatic val BASIC_VALID_OP_QUERY3 = "{\"\$and\": {\"id\": \"something\", \"param1\": 12345 } }"
+
+        @JvmStatic val BASIC_INVALID_NOT_QUERY = "{\"\$not\": {\"id\": \"something\", \"param1\": 12345} }"
 
         @JvmStatic val COMPLEX_VALID_QUERY1 =
             "{"+
@@ -188,6 +191,16 @@ class StorageQueryParsingTests {
             ),
             query
         )
+    }
+
+    @Test
+    fun testParseBasicInvalidOpQueries() {
+        try {
+            StorageQuery.fromJson(BASIC_INVALID_NOT_QUERY)
+            fail("Query parsing should fail when two clauses are supplied to a NOT operation")
+        } catch (e: QueryParseError) {
+            // passes
+        }
     }
 
     @Test

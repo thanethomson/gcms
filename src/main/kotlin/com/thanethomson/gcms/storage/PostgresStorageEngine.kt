@@ -11,15 +11,15 @@ import java.sql.DriverManager
 /**
  * Storage engine for PostgreSQL.
  *
- * @param url: The JDBC connection string for connecting to PostgreSQL.
- * @param username: The username for the PostgreSQL user.
- * @param password: The password for the PostgreSQL user.
+ * @param url The connection string for connecting to PostgreSQL (without the "jdbc:" prefix).
+ * @param username The username for the PostgreSQL user.
+ * @param password The password for the PostgreSQL user.
  */
 class PostgresStorageEngine constructor(
-        val url: String,
-        val username: String,
-        val password: String
-): StorageEngine {
+    val url: String,
+    val username: String,
+    val password: String
+): AbstractSqlStorageEngine("postgres") {
 
     companion object {
         @JvmStatic val logger: Logger = LoggerFactory.getLogger(PostgresStorageEngine::class.java)
@@ -30,11 +30,13 @@ class PostgresStorageEngine constructor(
     init {
         // verify that the PostgreSQL driver is available
         Class.forName("org.postgresql.Driver")
-
         logger.info("Attempting to connect to PostgreSQL server as $username: $url")
         // connect to PostgreSQL
-        conn = DriverManager.getConnection(url, username, password)
+        conn = DriverManager.getConnection("jdbc:$url", username, password)
         conn.autoCommit = false
+
+        // ensure that our meta tables have been created
+        checkMetaTables(conn)
     }
 
     override fun applyMigrations() {
